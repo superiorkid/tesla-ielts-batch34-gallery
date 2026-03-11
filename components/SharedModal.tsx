@@ -6,7 +6,7 @@ import {
   ChevronRightIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import { AnimatePresence, motion, MotionConfig } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { useSwipeable } from "react-swipeable";
@@ -80,7 +80,7 @@ export default function SharedModal({
                   width={navigation ? 1280 : 1920}
                   height={navigation ? 853 : 1280}
                   priority
-                  alt="Next.js Conf image"
+                  alt="Tesla IELTS batch 34 image"
                   onLoad={() => setLoaded(true)}
                 />
               </motion.div>

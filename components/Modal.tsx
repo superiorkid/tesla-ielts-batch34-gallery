@@ -1,7 +1,7 @@
 import { Dialog } from "@headlessui/react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useKeypress from "react-use-keypress";
 import type { ImageProps } from "../utils/types";
 import SharedModal from "./SharedModal";
@@ -13,29 +13,40 @@ export default function Modal({
   images: ImageProps[];
   onClose?: () => void;
 }) {
-  let overlayRef = useRef();
+  const overlayRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   const { photoId } = router.query;
-  let index = Number(photoId);
+
+  const initialIndex = typeof photoId === "string" ? Number(photoId) : 0;
 
   const [direction, setDirection] = useState(0);
-  const [curIndex, setCurIndex] = useState(index);
+  const [curIndex, setCurIndex] = useState(initialIndex);
+
+  // Sync state with URL
+  useEffect(() => {
+    if (typeof photoId === "string") {
+      const newIndex = Number(photoId);
+      if (!isNaN(newIndex)) {
+        setCurIndex(newIndex);
+      }
+    }
+  }, [photoId]);
 
   function handleClose() {
     router.push("/", undefined, { shallow: true });
-    onClose();
+    onClose?.();
   }
 
   function changePhotoId(newVal: number) {
-    if (newVal > index) {
-      setDirection(1);
-    } else {
-      setDirection(-1);
-    }
+    if (newVal < 0 || newVal >= images.length) return;
+
+    setDirection(newVal > curIndex ? 1 : -1);
     setCurIndex(newVal);
-    router.push(
+
+    router.replace(
       {
+        pathname: "/",
         query: { photoId: newVal },
       },
       `/p/${newVal}`,
@@ -44,14 +55,14 @@ export default function Modal({
   }
 
   useKeypress("ArrowRight", () => {
-    if (index + 1 < images.length) {
-      changePhotoId(index + 1);
+    if (curIndex + 1 < images.length) {
+      changePhotoId(curIndex + 1);
     }
   });
 
   useKeypress("ArrowLeft", () => {
-    if (index > 0) {
-      changePhotoId(index - 1);
+    if (curIndex > 0) {
+      changePhotoId(curIndex - 1);
     }
   });
 
@@ -65,12 +76,13 @@ export default function Modal({
     >
       <Dialog.Overlay
         ref={overlayRef}
-        as={motion.div}
+        as={motion.div as any}
         key="backdrop"
         className="fixed inset-0 z-30 bg-black/70 backdrop-blur-2xl"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       />
+
       <SharedModal
         index={curIndex}
         direction={direction}

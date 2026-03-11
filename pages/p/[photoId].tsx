@@ -17,7 +17,7 @@ const Home: NextPage = ({ currentPhoto }: { currentPhoto: ImageProps }) => {
   return (
     <>
       <Head>
-        <title>Next.js Conf 2022 Photos</title>
+        <title>Tesla IELTS Batch 34 Photos</title>
         <meta property="og:image" content={currentPhotoUrl} />
         <meta name="twitter:image" content={currentPhotoUrl} />
       </Head>
@@ -72,6 +72,6 @@ export async function getStaticPaths() {
 
   return {
     paths: fullPaths,
-    fallback: false,
+    fallback: "blocking",
   };
 }
