@@ -12,16 +12,14 @@ export default async function getBase64ImageUrl(
 
   const response = await fetch(
     `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/f_jpg,w_8,q_70/${image.public_id}.${image.format}`,
+    { cache: "force-cache" },
   );
 
-  const buffer = await response.arrayBuffer();
-  const input = new Uint8Array(buffer);
+  const arrayBuffer = await response.arrayBuffer();
 
-  const minified = await imagemin.buffer(input, {
-    plugins: [imageminJpegtran()],
-  });
+  const base64 = Buffer.from(new Uint8Array(arrayBuffer)).toString("base64");
 
-  url = `data:image/jpeg;base64,${Buffer.from(minified).toString("base64")}`;
+  url = `data:image/jpeg;base64,${base64}`;
   cache.set(image, url);
 
   return url;
